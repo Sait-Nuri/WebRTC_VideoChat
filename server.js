@@ -37,9 +37,11 @@ io.on('connection', function(socket) {
 	    //socket.broadcast.emit('message', "new client " + client_num +" connected");
 
 		if( check_room(room, rooms) ){
-			socket.join(room);
 			console.log("Request to join room");
-			socket.emit('joined', "You joined in " + room);
+			client_num++;
+			socket.join(room);
+			socket.emit('joined', {message:"You joined in " + room, id:client_num});
+
 			//io.sockets.in(room).emit('peer_connected', "new client joined");
 			
 		}else{
@@ -47,9 +49,20 @@ io.on('connection', function(socket) {
 			socket.join(room);
 			rooms.push(room);
 			socket.emit('created', "You created new room: " + room);
+
 			//io.sockets.in(room).emit('message', "new room " + room + " created");
 		}
 	});
+
+	socket.on('terminate', function (message) {
+		if(message === '0'){
+			console.log("Room is closed");
+			rooms.pop();
+			client_num = 0;
+		}
+		
+	})
+
 });
 
 /*
